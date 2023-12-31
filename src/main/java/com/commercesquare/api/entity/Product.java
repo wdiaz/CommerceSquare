@@ -1,8 +1,11 @@
 package com.commercesquare.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -29,6 +32,15 @@ public class Product {
 
     @Column(name = "updatedAt")
     private Date updatedAt;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JsonIgnore
+    private Set<Category> categories = new HashSet<>();
 
     public Product() {
     }
@@ -107,6 +119,22 @@ public class Product {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    // Method to add one category at a time
+    public void addCategory(Category category) {
+        if (category != null && !categories.contains(category)) {
+            this.categories.add(category);
+            category.getProducts().add(this);
+        }
     }
 
     @Override
